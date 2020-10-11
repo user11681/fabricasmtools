@@ -32,26 +32,30 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
 
     @Override
     public void preApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
-        final MixinTransformer transformer = this.registeredPreMixinTransformers.remove(targetClassName);
+        if (this.registeredPreMixinTransformers != null) {
+            final MixinTransformer transformer = this.registeredPreMixinTransformers.remove(targetClassName);
 
-        if (transformer != null) {
-            transformer.transform(targetClassName, targetClass, mixinClassName, mixinInfo);
+            if (transformer != null) {
+                transformer.transform(targetClassName, targetClass, mixinClassName, mixinInfo);
 
-            if (this.registeredPreMixinTransformers.size() == 0) {
-                this.registeredPreMixinTransformers = null;
+                if (this.registeredPreMixinTransformers.size() == 0) {
+                    this.registeredPreMixinTransformers = null;
+                }
             }
         }
     }
 
     @Override
     public void postApply(final String targetClassName, final ClassNode targetClass, final String mixinClassName, final IMixinInfo mixinInfo) {
-        final MixinTransformer transformer = this.registeredPostMixinTransformers.remove(targetClassName);
+        if (this.registeredPostMixinTransformers != null) {
+            final MixinTransformer transformer = this.registeredPostMixinTransformers.remove(targetClassName);
 
-        if (transformer != null) {
-            transformer.transform(targetClassName, targetClass, mixinClassName, mixinInfo);
+            if (transformer != null) {
+                transformer.transform(targetClassName, targetClass, mixinClassName, mixinInfo);
 
-            if (this.registeredPostMixinTransformers.size() == 0) {
-                this.registeredPostMixinTransformers = null;
+                if (this.registeredPostMixinTransformers.size() == 0) {
+                    this.registeredPostMixinTransformers = null;
+                }
             }
         }
     }
