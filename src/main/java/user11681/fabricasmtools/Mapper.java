@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 
-public abstract class MappingMixinConfigPlugin extends AbstractMixinConfigPlugin {
+public abstract class Mapper {
     protected static final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
     protected static final boolean development = FabricLoader.getInstance().isDevelopmentEnvironment();
 

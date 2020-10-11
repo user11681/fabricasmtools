@@ -5,7 +5,7 @@ import java.util.List;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-public abstract class TransformerPlugin extends MappingMixinConfigPlugin {
+public abstract class TransformerPlugin extends Mapper implements MixinConfigPlugin {
     protected transient Object2ReferenceOpenHashMap<String, MixinTransformer> registeredPreMixinTransformers = new Object2ReferenceOpenHashMap<>();
     protected transient Object2ReferenceOpenHashMap<String, MixinTransformer> registeredPostMixinTransformers = new Object2ReferenceOpenHashMap<>();
 //    protected transient ReferenceArrayList<ClassNode> generatedMixins = ReferenceArrayList.wrap(new ClassNode[1], 0);
