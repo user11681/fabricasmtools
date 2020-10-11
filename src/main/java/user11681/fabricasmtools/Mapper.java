@@ -1,12 +1,24 @@
 package user11681.fabricasmtools;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.lang.invoke.MethodType;
+import java.util.Map;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
+import net.fabricmc.mappings.EntryTriple;
+import net.gudenau.lib.unsafe.Unsafe;
+import user11681.reflect.Accessor;
+import user11681.reflect.Classes;
+import user11681.reflect.Invoker;
 
-public abstract class Mapper {
+@SuppressWarnings("unchecked")
+public class Mapper {
     public static final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
     public static final boolean development = FabricLoader.getInstance().isDevelopmentEnvironment();
+    public static final Object namespaceData;
+
+    public static final Object2ObjectOpenHashMap<String, String> environmentFieldNames = new Object2ObjectOpenHashMap<>();
+    public static final Object2ObjectOpenHashMap<String, String> environmentMethodNames = new Object2ObjectOpenHashMap<>();
 
     public final Object2ObjectOpenHashMap<String, String> classes = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectOpenHashMap<String, String> fields = new Object2ObjectOpenHashMap<>();
@@ -23,11 +35,23 @@ public abstract class Mapper {
     }
 
     public static String field(final int number) {
-        return "field_" + number;
+        final String intermediary = "field_" + number;
+
+        if (development) {
+            return environmentFieldNames.get(intermediary);
+        }
+
+        return intermediary;
     }
 
     public static String method(final int number) {
-        return "method_" + number;
+        final String intermediary = "method_" + number;
+
+        if (development) {
+            return environmentMethodNames.get(intermediary);
+        }
+
+        return intermediary;
     }
 
     public String internal(final String yarn) {
@@ -108,5 +132,21 @@ public abstract class Mapper {
         }
 
         return mapped;
+    }
+
+    static {
+        try {
+            namespaceData = Invoker.bind(mappingResolver, "getNamespaceData", MethodType.methodType(Classes.load(Mapper.class.getClassLoader(), false, "net.fabricmc.loader.FabricMappingResolver$NamespaceData"), String.class)).invoke("intermediary");
+
+            for (final Map.Entry<EntryTriple, String> entry : ((Map<EntryTriple, String>) Accessor.getObject(namespaceData, "fieldNames")).entrySet()) {
+                environmentFieldNames.put(entry.getKey().getName(), entry.getValue());
+            }
+            for (final Map.Entry<EntryTriple, String> entry : ((Map<EntryTriple, String>) Accessor.getObject(namespaceData, "methodNames")).entrySet()) {
+                environmentMethodNames.put(entry.getKey().getName(), entry.getValue());
+            }
+
+        } catch (final Throwable throwable) {
+            throw Unsafe.throwException(throwable);
+        }
     }
 }

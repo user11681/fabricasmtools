@@ -1,10 +1,16 @@
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.annotation.Testable;
+import user11681.fabricasmtools.Mapper;
 
 @Testable
 public class ATest {
     @Test
-    public void test() {
+    public void mapper() {
+        final Mapper mapper = new Mapper();
+    }
+
+    @Test
+    public void stackTrace() {
         final long start = System.nanoTime();
 
         for (int i = 0; i < 1000; i++) {

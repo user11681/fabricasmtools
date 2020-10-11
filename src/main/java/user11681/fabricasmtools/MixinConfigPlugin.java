@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-public abstract interface MixinConfigPlugin extends IMixinConfigPlugin {
+public interface MixinConfigPlugin extends IMixinConfigPlugin {
     @Override
     default void onLoad(final String mixinPackage) {}
 
