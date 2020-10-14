@@ -24,6 +24,10 @@ public class Mapper {
     public final Object2ObjectOpenHashMap<String, String> fields = new Object2ObjectOpenHashMap<>();
     public final Object2ObjectOpenHashMap<String, String> methods = new Object2ObjectOpenHashMap<>();
 
+    public static String internal(final int number) {
+        return klass(number).replace('.', '/');
+    }
+
     public static String klass(final int number) {
         final String mapped = "net.minecraft.class_" + number;
 
@@ -56,10 +60,6 @@ public class Mapper {
 
     public String internal(final String yarn) {
         return this.klass(yarn).replace('.', '/');
-    }
-
-    public String internal(final int number) {
-        return klass(number).replace('.', '/');
     }
 
     public String putInternal(final String yarn, final int number) {

@@ -15,11 +15,7 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
     protected String internalPackageName;
 
     @Override
-    public void onLoad(String mixinPackage) {
-        if (mixinPackage == null) {
-            throw new NullPointerException("Mixin package must be specified in Mixin configuration");
-        }
-
+    public void onLoad(final String mixinPackage) {
         this.internalPackageName = mixinPackage.replace('.', '/');
     }
 
