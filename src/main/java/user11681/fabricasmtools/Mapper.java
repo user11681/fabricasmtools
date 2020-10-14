@@ -29,13 +29,13 @@ public class Mapper {
     }
 
     public static String klass(final int number) {
-        final String mapped = "net.minecraft.class_" + number;
+        final String intermediary = "net.minecraft.class_" + number;
 
         if (development) {
-            return mappingResolver.mapClassName("intermediary", mapped);
+            return mappingResolver.mapClassName("intermediary", intermediary);
         }
 
-        return mapped;
+        return intermediary;
     }
 
     public static String field(final int number) {
@@ -90,10 +90,6 @@ public class Mapper {
         final String intermediary = this.fields.get(yarn);
 
         if (intermediary == null) {
-            return yarn;
-        }
-
-        if (development) {
             throw new IllegalArgumentException(yarn);
         }
 
@@ -114,10 +110,6 @@ public class Mapper {
         final String intermediary = this.methods.get(yarn);
 
         if (intermediary == null) {
-            return yarn;
-        }
-
-        if (development) {
             throw new IllegalArgumentException(yarn);
         }
 
