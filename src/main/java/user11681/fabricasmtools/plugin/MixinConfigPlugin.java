@@ -1,4 +1,4 @@
-package user11681.fabricasmtools;
+package user11681.fabricasmtools.plugin;
 
 import java.util.List;
 import java.util.Set;
