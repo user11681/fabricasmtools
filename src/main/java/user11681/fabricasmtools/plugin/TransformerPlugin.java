@@ -66,12 +66,12 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
                     }
                 }
 
-                this.postMixinMethodTransformers.remove(targetClassName);
+                this.preMixinMethodTransformers.remove(targetClassName);
 
             }
 
-            if (this.postMixinMethodTransformers.isEmpty()) {
-                this.postMixinMethodTransformers = null;
+            if (this.preMixinMethodTransformers.isEmpty()) {
+                this.preMixinMethodTransformers = null;
             }
         }
     }
@@ -192,7 +192,7 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
         final ObjectArrayList<MethodTransformerEntry> entries = this.postMixinMethodTransformers.computeIfAbsent(klass, mapFunction);
         final MethodTransformerEntry[] entryArray = entries.elements();
         final int entryCount = entries.size();
-        final MethodTransformerEntry entry = new MethodTransformerEntry(method, descriptor);
+        final MethodTransformerEntry entry = new MethodTransformerEntry(method, descriptor, transformer);
 
         for (int i = 0; i != entryCount; i++) {
             if (entryArray[i].name.equals(entry.name) && Objects.equals(entryArray[i].descriptor, entry.descriptor)) {
@@ -213,7 +213,7 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
         final ObjectArrayList<MethodTransformerEntry> entries = this.postMixinMethodTransformers.computeIfAbsent(klass, mapFunction);
         final MethodTransformerEntry[] entryArray = entries.elements();
         final int entryCount = entries.size();
-        final MethodTransformerEntry entry = new MethodTransformerEntry(method, descriptor);
+        final MethodTransformerEntry entry = new MethodTransformerEntry(method, descriptor, transformer);
 
         for (int i = 0; i != entryCount; i++) {
             if (entryArray[i].name.equals(entry.name) && Objects.equals(entryArray[i].descriptor, entry.descriptor)) {
