@@ -40,7 +40,7 @@ public class Mapper {
             return namespaceClassNames.get(intermediary.toString());
         }
 
-        return intermediary.toString();
+        return "net.minecraft." + intermediary.toString();
     }
 
     public static String field(final int number) {
