@@ -7,6 +7,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import user11681.fabricasmtools.Mapper;
+import user11681.fabricasmtools.plugin.transformer.MethodEntry;
 import user11681.fabricasmtools.plugin.transformer.klass.ContextMixinTransformer;
 import user11681.fabricasmtools.plugin.transformer.klass.MixinTransformer;
 import user11681.fabricasmtools.plugin.transformer.method.ClassMethodTransformer;
@@ -14,12 +15,12 @@ import user11681.fabricasmtools.plugin.transformer.method.ContextMethodTransform
 import user11681.fabricasmtools.plugin.transformer.method.MethodTransformer;
 
 public abstract class TransformerPlugin extends Mapper implements MixinConfigPlugin {
-    private static final Function<String, Object2ReferenceOpenHashMap<String, ContextMethodTransformer>> mapFunction = (final String name) -> new Object2ReferenceOpenHashMap<>();
+    private static final Function<String, Object2ReferenceOpenHashMap<MethodEntry, ContextMethodTransformer>> mapFunction = (final String name) -> new Object2ReferenceOpenHashMap<>();
 
     protected transient Object2ReferenceOpenHashMap<String, ContextMixinTransformer> preMixinTransformers = new Object2ReferenceOpenHashMap<>();
     protected transient Object2ReferenceOpenHashMap<String, ContextMixinTransformer> postMixinTransformers = new Object2ReferenceOpenHashMap<>();
-    protected transient Object2ReferenceOpenHashMap<String, Object2ReferenceOpenHashMap<String, ContextMethodTransformer>> preMixinMethodTransformers = new Object2ReferenceOpenHashMap<>();
-    protected transient Object2ReferenceOpenHashMap<String, Object2ReferenceOpenHashMap<String, ContextMethodTransformer>> postMixinMethodTransformers = new Object2ReferenceOpenHashMap<>();
+    protected transient Object2ReferenceOpenHashMap<String, Object2ReferenceOpenHashMap<MethodEntry, ContextMethodTransformer>> preMixinMethodTransformers =  new Object2ReferenceOpenHashMap<>();
+    protected transient Object2ReferenceOpenHashMap<String, Object2ReferenceOpenHashMap<MethodEntry, ContextMethodTransformer>> postMixinMethodTransformers = new Object2ReferenceOpenHashMap<>();
 
     protected boolean canRegister = true;
 
@@ -52,11 +53,11 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
         }
 
         if (this.preMixinMethodTransformers != null) {
-            final Object2ReferenceOpenHashMap<String, ContextMethodTransformer> methodTransformers = this.preMixinMethodTransformers.get(targetClassName);
+            final Object2ReferenceOpenHashMap<MethodEntry, ContextMethodTransformer> methodTransformers = this.preMixinMethodTransformers.get(targetClassName);
 
-            if (!methodTransformers.isEmpty()) {
+            if (methodTransformers != null) {
                 for (final MethodNode method : targetClass.methods) {
-                    final ContextMethodTransformer transformer = methodTransformers.remove(method.name);
+                    final ContextMethodTransformer transformer = methodTransformers.remove(new MethodEntry(method.name, method.desc));
 
                     if (transformer != null) {
                         transformer.transform(method, targetClassName, targetClass, mixinClassName, mixinInfo);
@@ -81,11 +82,11 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
         }
 
         if (this.postMixinMethodTransformers != null) {
-            final Object2ReferenceOpenHashMap<String, ContextMethodTransformer> methodTransformers = this.postMixinMethodTransformers.get(targetClassName);
+            final Object2ReferenceOpenHashMap<MethodEntry, ContextMethodTransformer> methodTransformers = this.postMixinMethodTransformers.get(targetClassName);
 
-            if (!methodTransformers.isEmpty()) {
+            if (methodTransformers != null) {
                 for (final MethodNode method : targetClass.methods) {
-                    final ContextMethodTransformer transformer = methodTransformers.remove(method.name);
+                    final ContextMethodTransformer transformer = methodTransformers.remove(new MethodEntry(method.name, method.desc));
 
                     if (transformer != null) {
                         transformer.transform(method, targetClassName, targetClass, mixinClassName, mixinInfo);
@@ -127,51 +128,69 @@ public abstract class TransformerPlugin extends Mapper implements MixinConfigPlu
         }
     }
 
-    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final ContextMethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final ContextMethodTransformer transformer) {
         this.verify();
 
-        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for method %s in class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
-    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final ClassMethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final ClassMethodTransformer transformer) {
         this.verify();
 
-        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for method %s in class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
-    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final MethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPreMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final MethodTransformer transformer) {
         this.verify();
 
-        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.preMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a pre-Mixin transformer for method %s in class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
-    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final ContextMethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final ContextMethodTransformer transformer) {
         this.verify();
 
-        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a post-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a post-Mixin transformer for method %s in class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
-    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final ClassMethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final ClassMethodTransformer transformer) {
         this.verify();
 
-        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a post-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a post-Mixin transformer for method %s class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
-    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final MethodTransformer transformer) {
+    /**
+     * {@code descriptor} may be {@code null} to match all methods with name {@code methodName}
+     */
+    protected void registerPostMixinMethodTransformer(final String targetBinaryName, final String methodName, final String descriptor, final MethodTransformer transformer) {
         this.verify();
 
-        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(methodName, transformer) != null) {
-            throw new IllegalArgumentException(String.format("a post-Mixin transformer for class %s was already registered by this plugin.", targetBinaryName));
+        if (this.postMixinMethodTransformers.computeIfAbsent(targetBinaryName, mapFunction).put(new MethodEntry(methodName, descriptor), transformer) != null) {
+            throw new IllegalArgumentException(String.format("a post-Mixin transformer for method %s in class %s was already registered by this plugin.", methodName, targetBinaryName));
         }
     }
 
