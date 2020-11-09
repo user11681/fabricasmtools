@@ -30,17 +30,17 @@ public class Mapper {
     }
 
     public static String klass(final int... numbers) {
-        final StringBuilder intermediary = new StringBuilder("class_").append(numbers[0]);
+        final StringBuilder intermediary = new StringBuilder("net.minecraft.class_").append(numbers[0]);
 
         for (int i = 1; i != numbers.length; i++) {
-            intermediary.append('$').append(numbers[i]);
+            intermediary.append("$class_").append(numbers[i]);
         }
 
         if (development) {
             return namespaceClassNames.get(intermediary.toString());
         }
 
-        return "net.minecraft." + intermediary.toString();
+        return intermediary.toString();
     }
 
     public static String field(final int number) {
@@ -136,9 +136,7 @@ public class Mapper {
             final Object namespaceData = Invoker.bind(FabricLoader.getInstance().getMappingResolver(), "getNamespaceData", Classes.load(Mapper.class.getClassLoader(), false, "net.fabricmc.loader.FabricMappingResolver$NamespaceData"), String.class).invoke("intermediary");
 
             for (final Map.Entry<String, String> entry : ((Map<String, String>) Accessor.getObject(namespaceData, "classNames")).entrySet()) {
-                String intermediary = entry.getKey();
-
-                namespaceClassNames.put(intermediary.substring(Math.max(intermediary.lastIndexOf('.'), intermediary.lastIndexOf("$class_")) + 1), entry.getValue());
+                namespaceClassNames.put(entry.getKey(), entry.getValue());
             }
 
             for (final Map.Entry<EntryTriple, String> entry : ((Map<EntryTriple, String>) Accessor.getObject(namespaceData, "fieldNames")).entrySet()) {
