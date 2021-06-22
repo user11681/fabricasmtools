@@ -1,0 +1,21 @@
+{
+    "schemaVersion": 1,
+    "id": "fabricasmtools",
+    "version": "${version}",
+
+    "name": "Fabric ASM tools",
+    "description": "Fabric ASM 2: Electric Boogaloo",
+    "authors": [
+        "user11681"
+    ],
+    "contact": {
+        "repo": "https://github.com/user11681/fabricasmtools"
+    },
+
+    "license": "MIT",
+    "icon": "assets/fabricasmtools/icon.png",
+
+    "custom": {
+        "modmenu:api": true
+    }
+}
